@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: snakemake configuration file
+
+type: object
+
+# possible entries of the config file and which type they should be
+properties:
+  samples:
+    type: string
+  replicates:
+    type: string
+  genome:
+    type: string
+  paired:
+    type: boolean
+  
+  trimming:
+    skip:
+      type: boolean
+    adapter_1:
+      type: string
+      pattern: "^[ACGT]+$"
+    adapter_2:
+      type: string
+      pattern: "^[ACGT]+$"
+    min_qual:
+      type: string
+    min_len:
+      type: string
+    additional:
+      type: string
+    required:
+      - skip
+  
+    feature_counts:
+      annotation:
+        type: string
+      threads:
+        type: integer
+      additional:
+        type: string
+      required:
+        - annotation
+        - threads
+
+# entries that have to be in the config file for successful validation
+required:
+  - samples
+  - replicates
+  - genome

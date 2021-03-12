@@ -1,0 +1,38 @@
+# This file should contain everything to configure the workflow on a global scale.
+# In case of sample based data, it should be complemented by a samples.tsv file that contains
+# one row per sample. It can be parsed easily via pandas.
+samples: "config/samples.tsv"
+replicates:  "config/units.tsv"
+
+genome: "data/genome.fa"
+
+# Are reads paired-end?
+paired: true
+
+trimming:
+  # skip trimming: false or true
+  skip: false
+  # 3' sequencing adapter of forward reads (R1)
+  adapter_1: ""
+  # 3' sequencing adapter of reverse reads (R2)
+  adapter_2: ""
+  # Trim low-quality ends from reads. 
+  # If you specify a single cutoff value, the 3’ end of each read is trimmed.
+  #It is also possible to also trim from the 5’ end by specifying two comma-separated 
+  #cutoffs as 5’ cutoff, 3’ cutoff.
+  min_qual: "10,10"
+  # Discard processed reads that are shorter than min_len.
+  min_len: "1"
+  # Specify any aditional arguments.
+  additional: ""
+
+samtools:
+  threads: 4
+
+feature_counts:
+  # Path to annotation file.
+  annotation: "data/genome.gtf"
+  threads: 8
+  # Specify any aditional arguments.
+  additional: ""
+

@@ -1,0 +1,51 @@
+import pandas as pd
+from snakemake.utils import validate, min_version
+
+min_version("5.1.2")
+
+configfile: "config/config.yaml"
+
+
+validate(config, schema="schemas/config.schema.yaml")
+
+samples = pd.read_csv(config["samples"], sep="\t").set_index("sample", drop=False)
+validate(samples, "schemas/samples.schema.yaml")
+
+
+replicates = pd.read_csv(config["replicates"], dtype=str, sep="\t").set_index(
+    ["sample", "replicate"], drop=False
+)
+replicates.index = replicates.index.set_levels(
+    [i.astype(str) for i in replicates.index.levels]
+)  # enforce str in index
+validate(replicates, schema="schemas/replicates.schema.yaml")
+
+is_paired = config["paired"]
+
+include: "rules/common.smk"
+
+rule all:
+    input:
+        expand("test_{sample}-{rep}.out", sample=replicates["sample"], rep=replicates["replicate"]),
+        "counts/merged.txt"
+        # The first rule should define the default target files
+        # Subsequent target rules can be specified below. They should start with all_*.
+
+rule agregate_qc:
+    input:
+        get_fastqc_outputs,
+        "qc/samtools_stats/{sample}-{rep}.txt"
+
+    output:
+        "test_{sample}-{rep}.out",
+    shell:
+        "touch {output}"
+
+container: "docker://continuumio/miniconda3"
+
+
+include: "rules/qc.smk"
+include: "rules/trim.smk"
+include: "rules/genome_index.smk"
+include: "rules/align.smk"
+include: "rules/counts.smk"
