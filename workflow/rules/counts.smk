@@ -12,8 +12,6 @@ rule feature_counts:
         config["feature_counts"]["threads"]
     log:
         "logs/feature_counts/{sample}-{rep}.txt"
-    conda:
-        "../envs/featurecounts.yaml"
     shell:
         "featureCounts "
         "{params.extra} "
@@ -29,7 +27,8 @@ rule merge_counts:
         [f"counts/{sample}-{rep}.txt" for sample, rep in zip(replicates["sample"], replicates["replicate"])]
 
     output:
-        "counts/merged.txt"
+        "counts/merged.tsv",
+        "counts/merged_raw.tsv"
     run:
         indices = ["Geneid", "Chr", "Start", "End", "Strand","Length"]
         frames = [
@@ -37,6 +36,20 @@ rule merge_counts:
             for fp in input
         ]
         merged = pd.concat(frames, axis=1)
-        merged = merged.rename(columns=lambda c: Path(c).stem)
 
+        merged = merged.rename(columns=lambda c: Path(c).stem)
         merged.to_csv(output[0], sep="\t", index=True)
+
+        # Save counts compatible with rnanorm
+        merged = merged.reset_index(level="Geneid")
+        merged = merged.rename(columns={"Geneid":"FEATURE_ID"})
+        merged.to_csv(output[1], sep="\t", index=False)
+rule normalize_counts:
+    input:
+        counts="counts/merged_raw.tsv",
+        annotation=config["feature_counts"]["annotation"]
+    output:
+        cpm="counts/merged_cpm.tsv",
+        tpm="counts/merged_tpm.tsv"
+    shell:
+        "rnanorm {input.counts} --cpm-output={output.cpm} --tpm-output={output.tpm} --annotation={input.annotation}"

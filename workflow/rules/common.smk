@@ -1,6 +1,3 @@
-# def is_paired(wildcards):
-#     return pd.notna(units.loc[wildcards.sample, wildcards.unit]["fq2"])
-
 def get_single_fastq(wildcards):
     return replicates.loc[(wildcards.sample, wildcards.rep), [f"fq{wildcards.pair}"]].dropna()
 
@@ -29,12 +26,12 @@ def get_fastqc_outputs(wildcards):
     else:
         if is_paired:
             return expand(
-                    "qc/{step}/{sample}-{rep}_R{pair}_fastqc.zip", step=["fastqc", "fastqc_posttrim"], 
+                    "qc/{step}/{sample}-{rep}_R{pair}_fastqc.zip", step=["fastqc", "fastqc_posttrim"],
                     pair=[1, 2], **wildcards
                 )
         else:
             return expand(
-                    "qc/{step}/{sample}-{rep}_R1_fastqc.zip", step=["fastqc", "fastqc_posttrim"], 
+                    "qc/{step}/{sample}-{rep}_R1_fastqc.zip", step=["fastqc", "fastqc_posttrim"],
                      **wildcards
                 )
 
@@ -49,7 +46,7 @@ def get_trim_params(wildcards):
         params.extend(["-A", config["trimming"]["adapter_2"]])
     if config["trimming"]["additional"]:
         params.append(config["trimming"]["additional"])
-    
+
     return " ".join(params)
 
 def feature_counts_params(wildcards):

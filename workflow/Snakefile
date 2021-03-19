@@ -4,6 +4,7 @@ from snakemake.utils import validate, min_version
 min_version("5.1.2")
 
 configfile: "config/config.yaml"
+workdir: config["work_directory"]
 
 
 validate(config, schema="schemas/config.schema.yaml")
@@ -27,7 +28,9 @@ include: "rules/common.smk"
 rule all:
     input:
         expand("test_{sample}-{rep}.out", sample=replicates["sample"], rep=replicates["replicate"]),
-        "counts/merged.txt"
+        "counts/merged.tsv",
+        "counts/merged_raw.tsv",
+        "counts/merged_tpm.tsv"
         # The first rule should define the default target files
         # Subsequent target rules can be specified below. They should start with all_*.
 
@@ -41,7 +44,7 @@ rule agregate_qc:
     shell:
         "touch {output}"
 
-container: "docker://continuumio/miniconda3"
+# container: "docker://continuumio/miniconda3"
 
 
 include: "rules/qc.smk"

@@ -102,3 +102,5 @@ In case you have also changed or added steps, please consider contributing them 
 
 Test cases are in the subfolder `.test`. They are automatically executed via continuous integration with [Github Actions](https://github.com/features/actions).
 
+Run it with
+docker run -m 8G -v $(pwd):/data mag:0.1.2 bin/bash -c "source activate snakemake; cd data;  snakemake -n --forceall all"

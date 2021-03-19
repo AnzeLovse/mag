@@ -7,7 +7,7 @@ rule bowtie2:
     log:
         "logs/bowtie2/{sample}-{rep}.log",
     params:
-        index="index/genome", 
+        index="index/genome",
         extra="",
     threads: 8
     wrapper:
@@ -19,8 +19,6 @@ rule samtools_sort:
         "mapped_reads/{sample}-{rep}.bam"
     output:
         "sorted_reads/{sample}-{rep}.bam"
-    conda:
-        "../envs/samtools.yaml"
     params:
         threads=config["samtools"]["threads"]
     shell:
@@ -32,8 +30,6 @@ rule samtools_index:
         "sorted_reads/{sample}-{rep}.bam"
     output:
         "sorted_reads/{sample}-{rep}.bam.bai"
-    conda:
-        "../envs/samtools.yaml"
     params:
         threads=config["samtools"]["threads"] - 1
     shell:

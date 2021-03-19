@@ -10,7 +10,7 @@ rule fastqc:
     wrapper:
         "0.72.0/bio/fastqc" # TODO update version to correctly remove .fq.gz ending
 
-rule fastqc_post_trim:    
+rule fastqc_post_trim:
     input:
         "trimmed/{sample}-{rep}_{pair}.fastq.gz",
     output:
@@ -28,8 +28,6 @@ rule samtools_stats:
         idx="sorted_reads/{sample}-{rep}.bam.bai"
     output:
         "qc/samtools_stats/{sample}-{rep}.txt"
-    conda:
-        "../envs/samtools.yaml"
     log:
         "logs/samtools_stats/{sample}-{rep}.log"
     shell:
