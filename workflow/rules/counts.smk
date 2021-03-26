@@ -4,7 +4,7 @@ rule feature_counts:
         bai="sorted_reads/{sample}-{rep}.bam.bai",
     output:
         counts="counts/{sample}-{rep}.txt",
-        summary="qc/feature_counts/{sample}-{rep}.txt"
+        summary="qc/feature_counts/{sample}-{rep}.summary"
     params:
         annotation=config["feature_counts"]["annotation"],
         extra=feature_counts_params
@@ -27,8 +27,9 @@ rule merge_counts:
         [f"counts/{sample}-{rep}.txt" for sample, rep in zip(replicates["sample"], replicates["replicate"])]
 
     output:
-        "counts/merged.tsv",
-        "counts/merged_raw.tsv"
+        complete="counts/merged.tsv",
+        raw="counts/merged_raw.tsv",
+        lengths="counts/lengths.tsv"
     run:
         indices = ["Geneid", "Chr", "Start", "End", "Strand","Length"]
         frames = [
@@ -38,18 +39,23 @@ rule merge_counts:
         merged = pd.concat(frames, axis=1)
 
         merged = merged.rename(columns=lambda c: Path(c).stem)
-        merged.to_csv(output[0], sep="\t", index=True)
+        merged.to_csv(output.complete, sep="\t", index=True)
 
         # Save counts compatible with rnanorm
         merged = merged.reset_index(level="Geneid")
         merged = merged.rename(columns={"Geneid":"FEATURE_ID"})
-        merged.to_csv(output[1], sep="\t", index=False)
+        merged.to_csv(output.raw, sep="\t", index=False)
+
+        lengths = merged.reset_index(level="Length")
+        lengths[["FEATURE_ID", "Length"]].to_csv(output.lengths, sep="\t", index=False)
+
+
 rule normalize_counts:
     input:
         counts="counts/merged_raw.tsv",
-        annotation=config["feature_counts"]["annotation"]
+        lengths="counts/lengths.tsv"
     output:
         cpm="counts/merged_cpm.tsv",
         tpm="counts/merged_tpm.tsv"
     shell:
-        "rnanorm {input.counts} --cpm-output={output.cpm} --tpm-output={output.tpm} --annotation={input.annotation}"
+        "rnanorm {input.counts} --cpm-output={output.cpm} --tpm-output={output.tpm} --gene-lengths={input.lengths}"

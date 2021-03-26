@@ -32,3 +32,19 @@ rule samtools_stats:
         "logs/samtools_stats/{sample}-{rep}.log"
     shell:
         "samtools stats {input.bam} 1> {output} 2> {log}"
+
+rule multiqc:
+    input:
+        get_fastqc_outputs,
+        expand("qc/samtools_stats/{sample}-{rep}.txt", sample=replicates["sample"], rep=replicates["replicate"]),
+        expand("logs/bowtie2/{sample}-{rep}.log", sample=replicates["sample"], rep=replicates["replicate"]),
+        expand("qc/feature_counts/{sample}-{rep}.summary", sample=replicates["sample"], rep=replicates["replicate"]),
+        expand("trimmed/{sample}-{rep}.qc.txt", sample=replicates["sample"], rep=replicates["replicate"])
+    output:
+        "qc/multiqc.html"
+    params:
+        "--dirs"
+    log:
+        "logs/multiqc.log"
+    wrapper:
+        "0.72.0/bio/multiqc"

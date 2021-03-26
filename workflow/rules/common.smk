@@ -19,20 +19,23 @@ def get_fastqc_outputs(wildcards):
     if config["trimming"]["skip"]:
         if is_paired:
             return expand(
-                    "qc/fastqc/{sample}-{rep}_R{pair}_fastqc.zip", pair=[1, 2], **wildcards
+                    "qc/fastqc/{sample}-{rep}_R{pair}_fastqc.zip", pair=[1, 2],
+                    sample=replicates["sample"], rep=replicates["replicate"]
                 )
         else:
-            return "qc/fastqc/{sample}-{rep}_R1_fastqc.zip"
+            return expand(
+                "qc/fastqc/{sample}-{rep}_R1_fastqc.zip",
+                sample=replicates["sample"], rep=replicates["replicate"])
     else:
         if is_paired:
             return expand(
                     "qc/{step}/{sample}-{rep}_R{pair}_fastqc.zip", step=["fastqc", "fastqc_posttrim"],
-                    pair=[1, 2], **wildcards
+                    pair=[1, 2], sample=replicates["sample"], rep=replicates["replicate"]
                 )
         else:
             return expand(
                     "qc/{step}/{sample}-{rep}_R1_fastqc.zip", step=["fastqc", "fastqc_posttrim"],
-                     **wildcards
+                     sample=replicates["sample"], rep=replicates["replicate"]
                 )
 
 
@@ -54,3 +57,7 @@ def feature_counts_params(wildcards):
     if is_paired:
         params += " -p"
     return params
+
+
+def get_contrast(wildcards):
+    return config["diffexp"]["contrasts"][wildcards.contrast]

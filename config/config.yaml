@@ -1,14 +1,14 @@
 # This file should contain everything to configure the workflow on a global scale.
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
 # one row per sample. It can be parsed easily via pandas.
-# Path to directory with data and results
+# Path to directory with data and results.
 # All other paths are relative to this path.
-work_directory: GIL01vsGIL01_M
+work_directory: pDG_MvspDG7_M
 
 samples: "config/samples.tsv"
 replicates:  "config/units.tsv"
 
-genome: "data/genome.fa"
+genome: "data/genome.fasta"
 
 # Are reads paired-end?
 paired: true
@@ -17,26 +17,33 @@ trimming:
   # skip trimming: false or true
   skip: false
   # 3' sequencing adapter of forward reads (R1)
-  adapter_1: ""
+  adapter_1: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"
   # 3' sequencing adapter of reverse reads (R2)
-  adapter_2: ""
-  # Trim low-quality ends from reads. 
+  adapter_2: "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT "
+  # Trim low-quality ends from reads.
   # If you specify a single cutoff value, the 3’ end of each read is trimmed.
-  #It is also possible to also trim from the 5’ end by specifying two comma-separated 
+  #It is also possible to also trim from the 5’ end by specifying two comma-separated
   #cutoffs as 5’ cutoff, 3’ cutoff.
   min_qual: "10,10"
   # Discard processed reads that are shorter than min_len.
   min_len: "1"
   # Specify any aditional arguments.
-  additional: ""
+  additional: "--max-n 0.1"
 
 samtools:
   threads: 4
 
 feature_counts:
   # Path to annotation file.
-  annotation: "data/genome.gtf"
-  threads: 8
+  annotation: "data/annotation.gtf"
+  threads: 4
   # Specify any aditional arguments.
-  additional: ""
+  additional: "-s 0 -t gene -g gene_id"
 
+diffexp:
+  threads: 4
+  # Contrasts for the differential expression DESeq2.
+  contrasts:
+    p7-vs-empty:
+      - p7
+      - empty
