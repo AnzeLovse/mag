@@ -3,17 +3,26 @@
 # one row per sample. It can be parsed easily via pandas.
 # Path to directory with data and results.
 # All other paths are relative to this path.
-work_directory: pDG_MvspDG7_M
+work_directory: results
 
 samples: "config/samples.tsv"
 replicates:  "config/units.tsv"
 
 genome: "data/genome.fasta"
 
+bowtie2_index:
+  threads: 8
+
+bowtie2:
+  threads: 8
+
+fastqc:
+  threads: 1
 # Are reads paired-end?
 paired: true
 
 trimming:
+  threads: 4
   # skip trimming: false or true
   skip: false
   # 3' sequencing adapter of forward reads (R1)

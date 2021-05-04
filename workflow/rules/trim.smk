@@ -3,15 +3,15 @@ if is_paired:
         input:
             get_raw_fastq
         output:
-            fastq1="trimmed/{sample}-{rep}_1.fastq.gz",
-            fastq2="trimmed/{sample}-{rep}_2.fastq.gz",
-            qc="trimmed/{sample}-{rep}.qc.txt",
+            fastq1="trimmed/{sample}-t{time}-{rep}_1.fastq.gz",
+            fastq2="trimmed/{sample}-t{time}-{rep}_2.fastq.gz",
+            qc="trimmed/{sample}-t{time}-{rep}.qc.txt",
         params:
             adapters="",
             extra=get_trim_params
         log:
-            "logs/cutadapt/{sample}-{rep}.log"
-        threads: 4
+            "logs/cutadapt/{sample}-t{time}-{rep}.log"
+        threads: config["trimming"]["threads"]
         wrapper:
             "0.72.0/bio/cutadapt/pe"
 else:
@@ -19,13 +19,13 @@ else:
         input:
             get_raw_fastq
         output:
-            fastq="trimmed/{sample}-{rep}_1.fastq.gz",
-            qc="trimmed/{sample}-{rep}.qc.txt",
+            fastq="trimmed/{sample}-t{time}-{rep}_1.fastq.gz",
+            qc="trimmed/{sample}-t{time}-{rep}.qc.txt",
         params:
             adapters="",
             extra=get_trim_params
         log:
-            "logs/cutadapt/{sample}-{rep}.log"
-        threads: 4
+            "logs/cutadapt/{sample}-t{time}-{rep}.log"
+        threads: config["trimming"]["threads"]
         wrapper:
             "0.72.0/bio/cutadapt/se"

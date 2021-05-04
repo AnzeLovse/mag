@@ -10,6 +10,6 @@ rule bowtie2_index:
         "logs/bowtie2_build/build.log"
     params:
         extra=""
-    threads: 8
+    threads:  config["bowtie2_index"]["threads"]
     wrapper:
         "0.72.0-5-gd0d054c/bio/bowtie2/build"

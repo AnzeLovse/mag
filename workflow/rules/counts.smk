@@ -1,17 +1,17 @@
 rule feature_counts:
     input:
-        bam="sorted_reads/{sample}-{rep}.bam",
-        bai="sorted_reads/{sample}-{rep}.bam.bai",
+        bam="sorted_reads/{sample}-t{time}-{rep}.bam",
+        bai="sorted_reads/{sample}-t{time}-{rep}.bam.bai",
     output:
-        counts="counts/{sample}-{rep}.txt",
-        summary="qc/feature_counts/{sample}-{rep}.summary"
+        counts="counts/{sample}-t{time}-{rep}.txt",
+        summary="qc/feature_counts/{sample}-t{time}-{rep}.summary"
     params:
         annotation=config["feature_counts"]["annotation"],
         extra=feature_counts_params
     threads:
         config["feature_counts"]["threads"]
     log:
-        "logs/feature_counts/{sample}-{rep}.txt"
+        "logs/feature_counts/{sample}-t{time}-{rep}.txt"
     shell:
         "featureCounts "
         "{params.extra} "
@@ -24,7 +24,7 @@ rule feature_counts:
 
 rule merge_counts:
     input:
-        [f"counts/{sample}-{rep}.txt" for sample, rep in zip(replicates["sample"], replicates["replicate"])]
+        [f"counts/{sample}-t{time}-{rep}.txt" for sample, time, rep in zip(replicates["sample"], replicates["time"], replicates["replicate"])]
 
     output:
         complete="counts/merged.tsv",

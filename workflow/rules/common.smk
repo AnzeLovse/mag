@@ -1,42 +1,64 @@
 def get_single_fastq(wildcards):
-    return replicates.loc[(wildcards.sample, wildcards.rep), [f"fq{wildcards.pair}"]].dropna()
+    return replicates.loc[(wildcards.sample, wildcards.rep, wildcards.time), [f"fq{wildcards.pair}"]].dropna()
 
 def get_raw_fastq(wildcards):
-    return replicates.loc[(wildcards.sample, wildcards.rep), ["fq1", "fq2"]].dropna()
+    return replicates.loc[(wildcards.sample, wildcards.rep, wildcards.time), ["fq1", "fq2"]].dropna()
 
 def get_fastq(wildcards):
     if config["trimming"]["skip"]:
-        return replicates.loc[(wildcards.sample, wildcards.rep), ["fq1", "fq2"]].dropna()
+        return replicates.loc[(wildcards.sample, wildcards.rep, wildcards.time), ["fq1", "fq2"]].dropna()
     else:
         if is_paired:
             return expand(
-                    "trimmed/{sample}-{rep}_{pair}.fastq.gz", pair=[1, 2], **wildcards
+                    "trimmed/{sample}-t{time}-{rep}_{pair}.fastq.gz", pair=[1, 2], **wildcards
                 )
         else:
-            return ["trimmed/{sample}-{rep}_1.fastq.gz"]
+            return ["trimmed/{sample}-t{time}-{rep}_1.fastq.gz"]
 
 def get_fastqc_outputs(wildcards):
     if config["trimming"]["skip"]:
         if is_paired:
             return expand(
-                    "qc/fastqc/{sample}-{rep}_R{pair}_fastqc.zip", pair=[1, 2],
-                    sample=replicates["sample"], rep=replicates["replicate"]
+                    "qc/fastqc/{sample}-t{time}-{rep}_R{pair}_fastqc.zip", pair=[1, 2],
+                    sample=replicates["sample"], rep=replicates["replicate"], time=replicates["time"],
                 )
         else:
             return expand(
-                "qc/fastqc/{sample}-{rep}_R1_fastqc.zip",
-                sample=replicates["sample"], rep=replicates["replicate"])
+                "qc/fastqc/{sample}-t{time}-{rep}_R1_fastqc.zip",
+                sample=replicates["sample"], rep=replicates["replicate"], time=replicates["time"],)
     else:
         if is_paired:
+            samples = [
+                f"qc/{{step}}/{sample}-t{time}-{rep}_R{{pair}}_fastqc.zip"
+                for sample, rep, time in replicates.index.to_list()
+            ]
             return expand(
-                    "qc/{step}/{sample}-{rep}_R{pair}_fastqc.zip", step=["fastqc", "fastqc_posttrim"],
-                    pair=[1, 2], sample=replicates["sample"], rep=replicates["replicate"]
+                    samples, step=["fastqc", "fastqc_posttrim"], pair=[1, 2]
                 )
         else:
             return expand(
-                    "qc/{step}/{sample}-{rep}_R1_fastqc.zip", step=["fastqc", "fastqc_posttrim"],
-                     sample=replicates["sample"], rep=replicates["replicate"]
+                    "qc/{step}/{sample}-t{time}-{rep}_R1_fastqc.zip", step=["fastqc", "fastqc_posttrim"],
+                     sample=replicates["sample"], rep=replicates["replicate"], time=replicates["time"],
                 )
+
+def get_qc_ouptuts(wildcards):
+    samtools = [
+        f"qc/samtools_stats/{sample}-t{time}-{rep}.txt"
+        for sample, rep, time in replicates.index.to_list()
+    ]
+    bowtie = [
+        f"logs/bowtie2/{sample}-t{time}-{rep}.log"
+        for sample, rep, time in replicates.index.to_list()
+    ]
+    feature_counts = [
+        f"qc/feature_counts/{sample}-t{time}-{rep}.summary"
+        for sample, rep, time in replicates.index.to_list()
+    ]
+    trimming = [
+        f"trimmed/{sample}-t{time}-{rep}.qc.txt"
+        for sample, rep, time in replicates.index.to_list()
+    ]
+    return samtools + bowtie + feature_counts + trimming
 
 
 def get_trim_params(wildcards):

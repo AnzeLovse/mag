@@ -1,3 +1,7 @@
 sample	condition
 pDG_M	empty
 pDG7_M	p7
+pDG	control
+pDG7	untreated
+GIL01	gil_control
+GIL01_M	gil_treated

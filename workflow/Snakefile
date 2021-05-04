@@ -4,7 +4,6 @@ from snakemake.utils import validate, min_version
 min_version("5.1.2")
 
 configfile: "config/config.yaml"
-workdir: config["work_directory"]
 
 
 validate(config, schema="schemas/config.schema.yaml")
@@ -14,12 +13,13 @@ validate(samples, "schemas/samples.schema.yaml")
 
 
 replicates = pd.read_csv(config["replicates"], dtype=str, sep="\t").set_index(
-    ["sample", "replicate"], drop=False
+    ["sample", "replicate", "time"], drop=False
 )
 replicates.index = replicates.index.set_levels(
     [i.astype(str) for i in replicates.index.levels]
 )  # enforce str in index
 validate(replicates, schema="schemas/replicates.schema.yaml")
+workdir: config["work_directory"]
 
 is_paired = config["paired"]
 
@@ -31,13 +31,13 @@ rule all:
         "counts/merged.tsv",
         "counts/merged_raw.tsv",
         "counts/merged_tpm.tsv",
-        expand(
-            [
-                "deseq2/{contrast}.diffexp.tsv",
-                "deseq2/{contrast}.ma-plot.svg",
-            ],
-            contrast=config["diffexp"]["contrasts"],
-        ),
+        # expand(
+        #    [
+        #        "deseq2/{contrast}.diffexp.tsv",
+        #        "deseq2/{contrast}.ma-plot.svg",
+        #    ],
+        #    contrast=config["diffexp"]["contrasts"],
+        # ),
         # The first rule should define the default target files
         # Subsequent target rules can be specified below. They should start with all_*.
 

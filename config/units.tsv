@@ -1,5 +1,11 @@
-sample	replicate	fq1	fq2
-pDG_M	1	data/pDG_1_M_1.fastq.gz	data/pDG7_1_M_2.fastq.gz
-pDG_M	2	data/pDG_2_M_1.fastq.gz	data/pDG_2_M_2.fastq.gz
-pDG7_M	1	data/pDG7_1_M_1.fastq.gz	data/pDG7_1_M_2.fastq.gz
-pDG7_M	2	data/pDG7_2_M_1.fastq.gz	data/pDG7_2_M_1.fastq.gz
+sample	replicate	time	fq1	fq2
+pDG_M	1	0	data/pDG_1_M_1.fastq.gz	data/pDG_1_M_2.fastq.gz
+pDG_M	2	0	data/pDG_2_M_1.fastq.gz	data/pDG_2_M_2.fastq.gz
+pDG7_M	1	0	data/pDG7_1_M_1.fastq.gz	data/pDG7_1_M_2.fastq.gz
+pDG7_M	2	0	data/pDG7_2_M_1.fastq.gz	data/pDG7_2_M_2.fastq.gz
+pDG	1	0	data/pDG_1_1.fastq.gz	data/pDG_1_2.fastq.gz
+pDG	2	0	data/pDG_2_1.fastq.gz	data/pDG_2_2.fastq.gz
+pDG7	1	0	data/pDG7_1_1.fastq.gz	data/pDG7_1_2.fastq.gz
+pDG7	2	0	data/pDG7_2_1.fastq.gz	data/pDG7_2_2.fastq.gz
+GIL01	1	0	data/GIL01_1.fastq.gz	data/GIL01_2.fastq.gz
+GIL01_M	1	0	data/GIL01_M_1.fastq.gz	data/GIL01_M_2.fastq.gz
