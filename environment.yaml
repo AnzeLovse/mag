@@ -1,0 +1,14 @@
+channels:
+        - bioconda
+        - conda-forge
+        - defaults
+dependencies:
+        - snakemake ==6.0.3
+        - bowtie2 ==2.4.1
+        - samtools ==1.10
+        - fastqc ==0.11.9
+        - cutadapt ==2.10
+        - subread ==2.0.1
+        - multiqc ==1.9
+        - tbb ==2020.2 # fixes bowtie2 see:https://www.biostars.org/p/494922/
+        - gxx_linux-64 ==7.3.0 #needed for rnanorm
