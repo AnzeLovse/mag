@@ -138,12 +138,12 @@ dependencies:
     - r-lattice ==0.20_41
     - gcc_impl_linux-64 ==7.5.0
     - bioconductor-apeglm ==1.12.0
-    - r-bbmle ==r-bbmle-1.0.23.1
-    - r-bdsmatrix ==r-bdsmatrix-1.3_4
-    - r-coda ==r-coda-0.19_4
-    - r-emdbook ==r-emdbook-1.3.12
-    - r-mvtnorm ==r-mvtnorm-1.1_1
-    - r-numderiv ==r-numderiv-2016.8_1.1
-    - r-plyr ==r-plyr-1.8.6
-    - r-rcppeigen ==r-rcppeigen-0.3.3.9.1
-    - r-rcppnumerical ==r-rcppnumerical-0.4_0
+    # - r-bbmle ==r-bbmle-1.0.23.1
+    # - r-bdsmatrix ==r-bdsmatrix-1.3_4
+    # - r-coda ==r-coda-0.19_4
+    # - r-emdbook ==r-emdbook-1.3.12
+    # - r-mvtnorm ==r-mvtnorm-1.1_1
+    # - r-numderiv ==r-numderiv-2016.8_1.1
+    # - r-plyr ==r-plyr-1.8.6
+    # - r-rcppeigen ==r-rcppeigen-0.3.3.9.1
+    # - r-rcppnumerical ==r-rcppnumerical-0.4_0

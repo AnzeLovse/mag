@@ -31,13 +31,14 @@ rule all:
         "counts/merged.tsv",
         "counts/merged_raw.tsv",
         "counts/merged_tpm.tsv",
-        # expand(
-        #    [
-        #        "deseq2/{contrast}.diffexp.tsv",
-        #        "deseq2/{contrast}.ma-plot.svg",
-        #    ],
-        #    contrast=config["diffexp"]["contrasts"],
-        # ),
+        expand(
+           [
+                "deseq2/{contrast}_dds.rds",
+                "deseq2/{contrast}.diffexp.tsv",
+                "deseq2/{contrast}.ma-plot.svg",
+           ],
+           contrast=config["diffexp"]["contrasts"],
+        ),
         # The first rule should define the default target files
         # Subsequent target rules can be specified below. They should start with all_*.
 
@@ -47,7 +48,6 @@ rule skip_de:
         "counts/merged.tsv",
         "counts/merged_raw.tsv",
         "counts/merged_tpm.tsv"
-# container: "docker://continuumio/miniconda3"
 
 
 include: "rules/qc.smk"
