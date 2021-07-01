@@ -8,7 +8,7 @@ rule bowtie2:
         "logs/bowtie2/{sample}-t{time}-{rep}.log",
     params:
         index="index/genome",
-        extra="",
+        extra="--very-sensitive",
     threads: config["bowtie2"]["threads"]
     wrapper:
         "0.72.0/bio/bowtie2/align"
