@@ -10,5 +10,6 @@ dependencies:
         - cutadapt ==2.10
         - subread ==2.0.1
         - multiqc ==1.9
+        - bedtools ==2.30.0
         - tbb ==2020.2 # fixes bowtie2 see:https://www.biostars.org/p/494922/
         - gxx_linux-64 ==7.3.0 #needed for rnanorm
