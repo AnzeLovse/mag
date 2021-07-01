@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from snakemake.utils import validate, min_version
 
@@ -31,6 +32,8 @@ rule all:
         "counts/merged.tsv",
         "counts/merged_raw.tsv",
         "counts/merged_tpm.tsv",
+        get_visualisation_ouptuts,
+        "visualisations/annotation.json",
         expand(
            [
                 "deseq2/{contrast}_dds.rds",
@@ -47,7 +50,9 @@ rule skip_de:
         "qc/multiqc.html",
         "counts/merged.tsv",
         "counts/merged_raw.tsv",
-        "counts/merged_tpm.tsv"
+        "counts/merged_tpm.tsv",
+        get_visualisation_ouptuts,
+        "visualisations/annotation.json",
 
 
 include: "rules/qc.smk"
@@ -56,3 +61,4 @@ include: "rules/genome_index.smk"
 include: "rules/align.smk"
 include: "rules/counts.smk"
 include: "rules/diff_expression.smk"
+include: "rules/visualisation_helpers.smk"

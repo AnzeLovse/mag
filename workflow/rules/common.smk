@@ -60,6 +60,11 @@ def get_qc_ouptuts(wildcards):
     ]
     return samtools + bowtie + feature_counts + trimming
 
+def get_visualisation_ouptuts(wildcards):
+    return [
+        f"visualisations/{sample}-t{time}-{rep}_coverage.json"
+        for sample, rep, time in replicates.index.to_list()
+    ]
 
 def get_trim_params(wildcards):
     params=[
