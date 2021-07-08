@@ -3,35 +3,37 @@
 # one row per sample. It can be parsed easily via pandas.
 # Path to directory with data and results.
 # All other paths are relative to this path.
-work_directory: results
+work_directory: results_timecourse
 
 samples: "config/samples.tsv"
 replicates:  "config/units.tsv"
 
-genome: "data/genome.fasta"
-
-bowtie2_index:
-  threads: 64
-
-bowtie2:
-  threads: 12
-
-fastqc:
-  threads: 4
 # Are reads paired-end?
 paired: true
 
-trimming:
+genome: "data/genome_with_gil01.fasta"
+
+bowtie2_index:
   threads: 12
+
+bowtie2:
+  threads: 12
+  parameters: "--very-sensitive"
+
+fastqc:
+  threads: 1
+
+trimming:
+  threads: 4
   # skip trimming: false or true
   skip: false
   # 3' sequencing adapter of forward reads (R1)
   adapter_1: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"
   # 3' sequencing adapter of reverse reads (R2)
-  adapter_2: "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT "
+  adapter_2: "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
   # Trim low-quality ends from reads.
   # If you specify a single cutoff value, the 3’ end of each read is trimmed.
-  #It is also possible to also trim from the 5’ end by specifying two comma-separated
+  # It is also possible to also trim from the 5’ end by specifying two comma-separated
   #cutoffs as 5’ cutoff, 3’ cutoff.
   min_qual: "10,10"
   # Discard processed reads that are shorter than min_len.
@@ -40,19 +42,19 @@ trimming:
   additional: "--max-n 0.1"
 
 samtools:
-  threads: 12
+  threads: 4
 
 feature_counts:
   # Path to annotation file.
-  annotation: "data/annotation.gtf"
+  annotation: "data/annotation_with_gil01.gtf"
   threads: 4
   # Specify any aditional arguments.
   additional: "-s 2 -t gene -g gene_id"
 
 diffexp:
-  threads: 12
-  # Contrasts for the differential expression DESeq2.
-  contrasts:
-    p7-vs-empty:
-      - p7
-      - empty
+  # Select a full model of the experiment
+  model: ~ condition+time+condition:time
+  # Select a reduced model for the LRT test
+  reduced_model: ~ condition+time
+  # Provide a FDR threshold
+  alpha: 0.05

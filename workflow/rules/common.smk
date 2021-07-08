@@ -84,7 +84,3 @@ def feature_counts_params(wildcards):
     if is_paired:
         params += " -p"
     return params
-
-
-def get_contrast(wildcards):
-    return config["diffexp"]["contrasts"][wildcards.contrast]

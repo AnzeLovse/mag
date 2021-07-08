@@ -34,18 +34,8 @@ rule all:
         "counts/merged_tpm.tsv",
         get_visualisation_ouptuts,
         "visualisations/annotation.json",
-        expand(
-           [
-                "deseq2/{contrast}_dds.rds",
-                "deseq2/{contrast}.diffexp.tsv",
-                "deseq2/{contrast}.ma-plot.svg",
-           ],
-           contrast=config["diffexp"]["contrasts"],
-        ),
-        # The first rule should define the default target files
-        # Subsequent target rules can be specified below. They should start with all_*.
 
-rule skip_de:
+rule all_with_de:
     input:
         "qc/multiqc.html",
         "counts/merged.tsv",
@@ -53,7 +43,9 @@ rule skip_de:
         "counts/merged_tpm.tsv",
         get_visualisation_ouptuts,
         "visualisations/annotation.json",
-
+        "deseq2/dds.rds",
+        "deseq2/diffexp.tsv",
+        "deseq2/pca_plot.svg",
 
 include: "rules/qc.smk"
 include: "rules/trim.smk"
