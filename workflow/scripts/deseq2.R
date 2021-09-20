@@ -52,8 +52,17 @@ logfc.list[[1]] <- data.frame(result)
 for (i in 2:length(resultsNames(dds))) {
     coeff = resultsNames(dds)[i]
     res.t <- results(dds, name=coeff, test="Wald", alpha = alpha)
-    res_shrunken <- lfcShrink(dds, coef=coeff, type="apeglm", res = res.t)
+    out.t <- as.data.frame(res.t)
+    out.t <- cbind(geneid = rownames(out.t), out.t)
+    write.table(
+        out.t,
+        file=paste("deseq2/", coeff, ".tsv", sep=""),
+        sep="\t",
+        quote=FALSE,
+        row.names=FALSE
+    )
 
+    res_shrunken <- lfcShrink(dds, coef=coeff, type="apeglm", res = res.t)
     out.table <- as.data.frame(res_shrunken)
     out.table <- cbind(geneid = rownames(out.table), out.table)
     write.table(
