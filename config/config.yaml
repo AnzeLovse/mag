@@ -1,7 +1,7 @@
 # This file should contain everything to configure the workflow on a global scale.
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
 # one row per sample. It can be parsed easily via pandas.
-# Path to directory with data and results.
+# Path to a directory with data and results.
 # All other paths are relative to this path.
 work_directory: results_timecourse
 
@@ -60,5 +60,5 @@ diffexp:
   model: ~ condition+time+condition:time
   # Select a reduced model for the LRT test
   reduced_model: ~ condition+time
-  # Provide a FDR threshold
+  # Provide an FDR threshold
   alpha: 0.05

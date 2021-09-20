@@ -6,46 +6,105 @@ type: object
 
 # possible entries of the config file and which type they should be
 properties:
+  work_directory:
+    description: Path to a directory with data and results.
+    type: string
   samples:
+    description: Path to a file with experiment design.
     type: string
   replicates:
-    type: string
-  genome:
+    description: Path to a file with sequencing replicate information.
     type: string
   paired:
+    description: Are reads paired-end.
     type: boolean
-  
+  genome:
+    description: Path to a genome (relative to the work_directory).
+    type: string
+
+  bowtie2_index:
+    threads:
+      type: integer
+    required:
+      - threads
+
+  bowtie2:
+    threads:
+      type: integer
+    parameters:
+      type: string
+    required:
+      - threads
+
+  fastqc:
+    threads:
+      type: integer
+    required:
+      - threads
+
   trimming:
+    threads:
+      type: integer
     skip:
+      description: Whether to skip trimming.
       type: boolean
+    min_qual:
+      description: Mininum quality. String with two numbers separeated by comma.
+      type: string
     adapter_1:
+      description: 3' sequencing adapter of forward reads (R1).
       type: string
       pattern: "^[ACGT]+$"
     adapter_2:
+      description: 3' sequencing adapter of reverse reads (R2).
       type: string
       pattern: "^[ACGT]+$"
-    min_qual:
-      type: string
     min_len:
+      description: Mininum length.
       type: string
     additional:
       type: string
     required:
+      - threads
+      - min_qual
       - skip
-  
-    feature_counts:
-      annotation:
-        type: string
-      threads:
-        type: integer
-      additional:
-        type: string
-      required:
-        - annotation
-        - threads
+
+  samtools:
+    threads:
+      type: integer
+    required:
+      - threads
+
+  feature_counts:
+    annotation:
+      type: string
+    threads:
+      type: integer
+    additional:
+      type: string
+    required:
+      - annotation
+      - threads
+
+  diffexp:
+    model:
+      description: Select a full model of the experiment.
+      type: string
+    reduced_model:
+      description: Select a reduced model of the experiment.
+      type: string
+    alpha:
+      description: Provide an FDR threshold.
+      type: number
+    required:
+      - model
+      - reduced_model
+      - alpha
 
 # entries that have to be in the config file for successful validation
 required:
+  - work_directory
   - samples
   - replicates
+  - paired
   - genome
