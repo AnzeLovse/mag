@@ -1,87 +1,39 @@
-FROM condaforge/mambaforge:latest
-LABEL io.github.snakemake.containerized="true"
-LABEL io.github.snakemake.conda_env_hash="16f31f1d9470da11b5ae066f139c71cda6aa5d94cdd1266e0de8c211c1040247"
+FROM docker.io/ubuntu:20.04
 
-# Step 1: Retrieve conda environments
+LABEL maintaner="Anže Lovše (@AnzeLovse)"
+LABEL release-date="2021-06-22"
 
-# Conda environment:
-#   source: ../workflow/envs/featurecounts.yaml
-#   prefix: /conda-envs/f970be3bdf66291746913c7fe60a78a4
-#   channels:
-#     - bioconda
-#     - conda-forge
-#   dependencies:
-#     - subread ==2.0.1
-RUN mkdir -p /conda-envs/f970be3bdf66291746913c7fe60a78a4
-COPY ../workflow/envs/featurecounts.yaml /conda-envs/f970be3bdf66291746913c7fe60a78a4/environment.yaml
+RUN echo "debconf debconf/frontend select Noninteractive" | debconf-set-selections \
+    && apt-get update  \
+    && apt-get -qq -y install \
+    apt-utils \
+    curl \
+    bzip2 \
+    software-properties-common \
+    libcurl4-openssl-dev \
+    build-essential \
+    libssl-dev \
+    libxml2-dev
 
-# Conda environment:
-#   source: ../workflow/envs/samtools.yaml
-#   prefix: /conda-envs/9608721699f97513ba7f47bd4e3db24b
-#   channels:
-#     - bioconda
-#     - conda-forge
-#   dependencies:
-#     - samtools ==1.10
-RUN mkdir -p /conda-envs/9608721699f97513ba7f47bd4e3db24b
-COPY ../workflow/envs/samtools.yaml /conda-envs/9608721699f97513ba7f47bd4e3db24b/environment.yaml
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 \
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/" \
+    && apt-get -qq -y install r-base r-base-dev
 
-# Conda environment:
-#   source: https:/github.com/snakemake/snakemake-wrappers/raw/0.72.0-5-gd0d054c/bio/bowtie2/build/environment.yaml
-#   prefix: /conda-envs/200f469099e32bb3d83d9ca89b039191
-#   channels:
-#     - bioconda
-#     - conda-forge
-#     - defaults
-#   dependencies:
-#     - bowtie2 ==2.4.1  # Keep consistent with version specified in bowtie2/align
-#     - samtools ==1.10
-RUN mkdir -p /conda-envs/200f469099e32bb3d83d9ca89b039191
-ADD https://github.com/snakemake/snakemake-wrappers/raw/0.72.0-5-gd0d054c/bio/bowtie2/build/environment.yaml /conda-envs/200f469099e32bb3d83d9ca89b039191/environment.yaml
+RUN R -e "install.packages(c('BiocManager'), repos='https://cloud.r-project.org')"
 
-# Conda environment:
-#   source: https:/github.com/snakemake/snakemake-wrappers/raw/0.72.0/bio/bowtie2/align/environment.yaml
-#   prefix: /conda-envs/06aa832cdf405d93f3eacda03259215e
-#   channels:
-#     - bioconda
-#     - conda-forge
-#     - defaults
-#   dependencies:
-#     - bowtie2 ==2.4.1  # Keep consistent with version specified in bowtie2/build
-#     - samtools ==1.10
-RUN mkdir -p /conda-envs/06aa832cdf405d93f3eacda03259215e
-ADD https://github.com/snakemake/snakemake-wrappers/raw/0.72.0/bio/bowtie2/align/environment.yaml /conda-envs/06aa832cdf405d93f3eacda03259215e/environment.yaml
+RUN R -e "BiocManager::install(c('DESeq2', 'apeglm'))"
+RUN curl -sSL https://repo.anaconda.com/miniconda/Miniconda-latest-Linux-x86_64.sh -o /tmp/miniconda.sh \
+    && bash /tmp/miniconda.sh -bfp /usr/local \
+    && rm -rf /tmp/miniconda.sh
 
-# Conda environment:
-#   source: https:/github.com/snakemake/snakemake-wrappers/raw/0.72.0/bio/cutadapt/pe/environment.yaml
-#   prefix: /conda-envs/473f10b47f8c5cd1ed7bd3701ad805a5
-#   channels:
-#     - bioconda
-#     - conda-forge
-#     - defaults
-#   dependencies:
-#     - cutadapt ==2.10
-RUN mkdir -p /conda-envs/473f10b47f8c5cd1ed7bd3701ad805a5
-ADD https://github.com/snakemake/snakemake-wrappers/raw/0.72.0/bio/cutadapt/pe/environment.yaml /conda-envs/473f10b47f8c5cd1ed7bd3701ad805a5/environment.yaml
+COPY environment.yaml /var/cache/build/
+RUN conda update -y conda \
+    && conda install -y -c conda-forge mamba \
+    && mamba create -q -y -c conda-forge -c bioconda -n snakemake snakemake python=3.8 \
+    && conda env update -n snakemake --file /var/cache/build/environment.yaml \
+    && conda run -n snakemake python -m pip install rnanorm
 
-# Conda environment:
-#   source: https:/github.com/snakemake/snakemake-wrappers/raw/0.72.0/bio/fastqc/environment.yaml
-#   prefix: /conda-envs/08d4368302a4bdf7eda6b536495efe7d
-#   channels:
-#     - bioconda
-#     - conda-forge
-#     - defaults
-#   dependencies:
-#     - fastqc ==0.11.9
-RUN mkdir -p /conda-envs/08d4368302a4bdf7eda6b536495efe7d
-ADD https://github.com/snakemake/snakemake-wrappers/raw/0.72.0/bio/fastqc/environment.yaml /conda-envs/08d4368302a4bdf7eda6b536495efe7d/environment.yaml
-
-# Step 2: Generate conda environments
-
-RUN mamba env create --prefix /conda-envs/f970be3bdf66291746913c7fe60a78a4 --file /conda-envs/f970be3bdf66291746913c7fe60a78a4/environment.yaml && \
-    mamba env create --prefix /conda-envs/9608721699f97513ba7f47bd4e3db24b --file /conda-envs/9608721699f97513ba7f47bd4e3db24b/environment.yaml && \
-    mamba env create --prefix /conda-envs/200f469099e32bb3d83d9ca89b039191 --file /conda-envs/200f469099e32bb3d83d9ca89b039191/environment.yaml && \
-    mamba env create --prefix /conda-envs/06aa832cdf405d93f3eacda03259215e --file /conda-envs/06aa832cdf405d93f3eacda03259215e/environment.yaml && \
-    mamba env create --prefix /conda-envs/473f10b47f8c5cd1ed7bd3701ad805a5 --file /conda-envs/473f10b47f8c5cd1ed7bd3701ad805a5/environment.yaml && \
-    mamba env create --prefix /conda-envs/08d4368302a4bdf7eda6b536495efe7d --file /conda-envs/08d4368302a4bdf7eda6b536495efe7d/environment.yaml && \
-    mamba clean --all -y
+RUN apt-get clean \
+    && conda clean --all -y \
+    && rm -rf /var/lib/apt/lists/* /var/log/dpkg.log \
+    && rm -rf /tmp/*
