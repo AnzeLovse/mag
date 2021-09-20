@@ -76,12 +76,23 @@ Create a results directory and copy the configuration in it:
     mkdir results_timecourse # create the directory
     cp config results_timecourse # copy the configuration
 
+Transfer reference genomes and reads into a subdirectory of results directory. The results directory should follow this structure. Please note that `0.72.0/bio/fastqc` wrapper only supports `.fastq` files and not `.fq` files.
+```bash
+├── config
+│   ├── config.yaml
+│   ├── samples.tsv
+│   └── units.tsv
+├── data
+│   ├── reference.fasta
+│   ├── annotation.gtf
+│   └── reads.fastq
+```
 To run the workflow with Docker use:
 
     cd mag # open the directory
-    docker run -m 8G -v $(pwd):/data mag:latest bin/bash -c "source activate snakemake; cd data; snakemake --cores `$N` `$STEP`"
+    docker run -m `$M` -v $(pwd):/data mag:latest bin/bash -c "source activate snakemake; cd data; snakemake --cores `$N` `$STEP`"
 
-using `$N` cores and the desired step `$STEP` (e.g. `all` or `all_with_de`)
+using `$N` cores, `$M` of memory and the desired step `$STEP` (e.g. `all` or `all_with_de`)
 
 ---
 Alternatively you can use Conda.
@@ -107,6 +118,38 @@ See the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/exe
 After successful execution, you can create a inspect an interactive HTML report made with MultiQC. It is located in `results_timecourse/qc/multiqc.html`
 
 For more information about MultiQC please see the [official webpage](https://multiqc.info/) and tool documentation.
+
+Directory sturcture of the results folder is shown below.
+```bash
+├── bedgraphs
+├── config
+├── counts
+├── data
+├── deseq2
+├── index
+├── logs
+│   ├── bedgraphs
+│   ├── bowtie2
+│   ├── bowtie2_build
+│   ├── cutadapt
+│   ├── deseq2
+│   ├── fastqc
+│   ├── fastqc_posttrim
+│   ├── feature_counts
+│   ├── multiqc.log
+│   └── samtools_stats
+├── mapped_reads
+├── qc
+│   ├── fastqc
+│   ├── fastqc_posttrim
+│   ├── feature_counts
+│   ├── multiqc.html
+│   ├── multiqc_data
+│   └── samtools_stats
+├── sorted_reads
+├── trimmed
+└── visualisations
+```
 
 ### Step 6: Commit changes
 
