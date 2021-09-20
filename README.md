@@ -1,37 +1,90 @@
-# Snakemake workflow: RNA-Seq
+# Snakemake RNA-seq: Bacterial timecourse RNA-Seq workflow
+## Introduction
+Author: Anže Lovše (@AnzeLovse)
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥5.7.0-brightgreen.svg)](https://snakemake.bitbucket.io)
-[![Build Status](https://travis-ci.org/snakemake-workflows/mag.svg?branch=master)](https://travis-ci.org/snakemake-workflows/mag)
 
-This is the template for a new Snakemake workflow. Replace this text with a comprehensive description covering the purpose and domain.
-Insert your code into the respective folders, i.e. `scripts`, `rules`, and `envs`. Define the entry point of the workflow in the `Snakefile` and the main configuration in the `config.yaml` file.
+This is a Snakemake workflow for generating gene expression counts from RNA-sequencing data and can optionally be used to run differential expression analysis as well. The workflow handles both single-end and paired-end sequencing data. We used the workflow for analyzing sequencing data from Bacillus thuringiensis serovar israelensis as a part of my bachelor thesis.
 
-## Authors
+If you use this workflow in a paper, don't forget to give credits to the authors by citing the URL of this (original) repository.
 
-* Anže Lovše (@AnzeLovse)
+## Overview
+The standard workflow performs the following steps:
+1. Trim reads with Cutadapt.
+2. Build a genome index and align reads with Bowtie2.
+3. Sort and index reads with Samtools.
+4. Generate gene expression counts with featureCounts.
+5. Merge all counts into a single file.
+6. Normalize counts (CPM, TPM) with rnanorm
+7. (optionally) Differential expression with DESeq2
 
-## Usage
+Additionally the workflow includes quality control steps:
+- Read quality reports before and after trimming using FASTQC.
+- Read alignment statistics based on Samtools and Bowtie2 reports.
+- featureCounts statistics report.
+- Aggregated report made with MultiQC
 
-If you use this workflow in a paper, don't forget to give credits to the authors by citing the URL of this (original) repository and, if available, its DOI (see above).
+and visualization helper functions:
+- Genome coverage made with genomeCoverageBed.
+- Calculate FASTA index.
+- Create JSON file with coverage data.
+- Convert GTF to BED.
+- Generate JSON file containing genomic features.
+
+Steps are shown in the following graph. Each rectangle represents a step of the analysis. Names of the rules are written in italic. Blue rectangles represent main steps, yellow ones show QC steps and the gray ones represent helper functions.
+![steps](workflow.png)
+
+## How to use
+
+### Prerequisites
+Download Docker or install Miniconda. If you use Miniconda choose Python 3.8 (or higher) for your operating system and follow the installation instructions.
+
+    conda --version # ideally 4.9.xx or higher
+    python --version # ideally 3.8.xx or higher
 
 ### Step 1: Obtain a copy of this workflow
 
-1. Create a new github repository using this workflow [as a template](https://help.github.com/en/articles/creating-a-repository-from-a-template).
-2. [Clone](https://help.github.com/en/articles/cloning-a-repository) the newly created repository to your local system, into the place where you want to perform the data analysis.
+If you simply want to use this workflow, download and extract the latest release or clone it with:
+
+
+    git clone https://github.com/AnzeLovse/mag.git
+
+
+If you intend to modify and further develop this workflow, fork this repository. Please consider providing any generally applicable modifications via a pull request.
 
 ### Step 2: Configure workflow
 
-Configure the workflow according to your needs via editing the files in the `config/` folder. Adjust `config.yaml` to configure the workflow execution, and `samples.tsv` to specify your sample setup.
+Configure the workflow according to your needs via editing the files in the `config/` folder. Adjust `config.yaml` to configure the workflow execution, `samples.tsv` to specify your experiment setup and `units.tsv` to specify sequencing runs.
 
-### Step 3: Install Snakemake
+### Step 3: Pull Docker image (recommended) or create Conda environment
 
-Install Snakemake using [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
+For Docker image pull the latest (currently 0.1.5) image from Docker Hub:
 
-    conda create -c bioconda -c conda-forge -n snakemake snakemake
+    docker pull alovse/rnaseq-mag
+---
+Conda environment only supports quantification and not differential expressions.
+To set it up use:
 
-For installation details, see the [instructions in the Snakemake documentation](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
+    conda install -y -c conda-forge mamba
+    mamba create -q -y -c conda-forge -c bioconda -n snakemake snakemake python=3.8
+    conda env update -n snakemake --file /var/cache/build/environment.yaml
+    conda run -n snakemake python -m pip install rnanorm
 
 ### Step 4: Execute workflow
+
+Create a results directory and copy the configuration in it:
+
+    mkdir results_timecourse # create the directory
+    cp config results_timecourse # copy the configuration
+
+To run the workflow with Docker use:
+
+    cd mag # open the directory
+    docker run -m 8G -v $(pwd):/data mag:latest bin/bash -c "source activate snakemake; cd data; snakemake --cores `$N` `$STEP`"
+
+using `$N` cores and the desired step `$STEP` (e.g. `all` or `all_with_de`)
+
+---
+Alternatively you can use Conda.
 
 Activate the conda environment:
 
@@ -39,39 +92,25 @@ Activate the conda environment:
 
 Test your configuration by performing a dry-run via
 
-    snakemake --use-conda -n
+    snakemake -n all
 
 Execute the workflow locally via
 
-    snakemake --use-conda --cores $N
+    snakemake --cores $N all
 
-using `$N` cores or run it in a cluster environment via
+using `$N` cores and choosing the desired `$STEP` (e.g. `all` or `all_with_de`)
 
-    snakemake --use-conda --cluster qsub --jobs 100
-
-or
-
-    snakemake --use-conda --drmaa --jobs 100
-
-If you not only want to fix the software stack but also the underlying OS, use
-
-    snakemake --use-conda --use-singularity
-
-in combination with any of the modes above.
 See the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executable.html) for further details.
 
 ### Step 5: Investigate results
 
-After successful execution, you can create a self-contained interactive HTML report with all results via:
+After successful execution, you can create a inspect an interactive HTML report made with MultiQC. It is located in `results_timecourse/qc/multiqc.html`
 
-    snakemake --report report.html
-
-This report can, e.g., be forwarded to your collaborators.
-An example (using some trivial test data) can be seen [here](https://cdn.rawgit.com/snakemake-workflows/rna-seq-kallisto-sleuth/master/.test/report.html).
+For more information about MultiQC please see the [official webpage](https://multiqc.info/) and tool documentation.
 
 ### Step 6: Commit changes
 
-Whenever you change something, don't forget to commit the changes back to your github copy of the repository:
+Whenever you change something, don't forget to commit the changes back to your Github copy of the repository:
 
     git commit -a
     git push
@@ -87,7 +126,6 @@ Whenever you want to synchronize your workflow copy with new developments from u
 5. Apply the modified diff via: `git apply upstream-changes.diff`.
 6. Carefully check whether you need to update the config files: `git diff HEAD upstream/master config`. If so, do it manually, and only where necessary, since you would otherwise likely overwrite your settings and samples.
 
-
 ### Step 8: Contribute back
 
 In case you have also changed or added steps, please consider contributing them back to the original repository:
@@ -97,15 +135,3 @@ In case you have also changed or added steps, please consider contributing them 
 3. Copy the modified files from your analysis to the clone of your fork, e.g., `cp -r workflow path/to/fork`. Make sure to **not** accidentally copy config file contents or sample sheets. Instead, manually update the example config files if necessary.
 4. Commit and push your changes to your fork.
 5. Create a [pull request](https://help.github.com/en/articles/creating-a-pull-request) against the original repository.
-
-## Testing
-
-Test cases are in the subfolder `.test`. They are automatically executed via continuous integration with [Github Actions](https://github.com/features/actions).
-
-docker pull alovse/rnaseq-mag:0.1.2
-Run it with
-docker run -m 8G -v $(pwd):/data mag:0.1.2 bin/bash -c "source activate snakemake; cd data;  snakemake -n --forceall all"
-
-docker run -m 8G -v $(pwd):/data mag:0.1.2 bin/bash -c "source activate snakemake; cd data;snakemake --dag  all | dot -Tsvg > dag.svg"
-
-genomecov -ibam sorted_reads/pDG_M-1.bam -d -strand + > coverage_pos.tsv
