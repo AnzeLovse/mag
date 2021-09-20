@@ -5,19 +5,23 @@
 # All other paths are relative to this path.
 work_directory: results_timecourse
 
+# Config files are also defined relatively to the work_directory.
+# Optionally you could go one directory up (e.g.) ../config/samples.tsv
+# to avoid copying the files in the results directory.
 samples: "config/samples.tsv"
 replicates:  "config/units.tsv"
 
 # Are reads paired-end?
 paired: true
 
+# Provide a relative path to the reference genome.
 genome: "data/genome_with_gil01.fasta"
 
 bowtie2_index:
   threads: 12
 
 bowtie2:
-  threads: 12
+  threads: 8
   parameters: "--very-sensitive"
 
 fastqc:
@@ -27,18 +31,18 @@ trimming:
   threads: 4
   # skip trimming: false or true
   skip: false
-  # 3' sequencing adapter of forward reads (R1)
-  adapter_1: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"
-  # 3' sequencing adapter of reverse reads (R2)
-  adapter_2: "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
   # Trim low-quality ends from reads.
   # If you specify a single cutoff value, the 3’ end of each read is trimmed.
   # It is also possible to also trim from the 5’ end by specifying two comma-separated
   #cutoffs as 5’ cutoff, 3’ cutoff.
   min_qual: "10,10"
+  # 3' sequencing adapter of forward reads (R1)
+  adapter_1: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"
+  # 3' sequencing adapter of reverse reads (R2)
+  adapter_2: "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
   # Discard processed reads that are shorter than min_len.
   min_len: "1"
-  # Specify any aditional arguments.
+  # Specify any additional arguments.
   additional: "--max-n 0.1"
 
 samtools:
@@ -48,7 +52,7 @@ feature_counts:
   # Path to annotation file.
   annotation: "data/annotation_with_gil01.gtf"
   threads: 4
-  # Specify any aditional arguments.
+  # Specify any additional arguments.
   additional: "-s 2 -t gene -g gene_id"
 
 diffexp:
