@@ -1,10 +1,13 @@
 def get_single_fastq(wildcards):
+    """Get file name of reads file."""
     return replicates.loc[(wildcards.sample, wildcards.rep, wildcards.time), [f"fq{wildcards.pair}"]].dropna()
 
 def get_raw_fastq(wildcards):
+    """Get file names of raw reads."""
     return replicates.loc[(wildcards.sample, wildcards.rep, wildcards.time), ["fq1", "fq2"]].dropna()
 
 def get_fastq(wildcards):
+    """Get file names of reads for FASTQC."""
     if config["trimming"]["skip"]:
         return replicates.loc[(wildcards.sample, wildcards.rep, wildcards.time), ["fq1", "fq2"]].dropna()
     else:
@@ -16,6 +19,7 @@ def get_fastq(wildcards):
             return ["trimmed/{sample}-t{time}-{rep}_1.fastq.gz"]
 
 def get_fastqc_outputs(wildcards):
+    """Get all FASTQC outputs for a sample."""
     if config["trimming"]["skip"]:
         if is_paired:
             return expand(
@@ -42,6 +46,7 @@ def get_fastqc_outputs(wildcards):
                 )
 
 def get_qc_ouptuts(wildcards):
+    """Get all QC outputs for a sample."""
     samtools = [
         f"qc/samtools_stats/{sample}-t{time}-{rep}.txt"
         for sample, rep, time in replicates.index.to_list()
@@ -61,12 +66,14 @@ def get_qc_ouptuts(wildcards):
     return samtools + bowtie + feature_counts + trimming
 
 def get_visualisation_ouptuts(wildcards):
+    """Get all visualisation outputs for a sample."""
     return [
         f"visualisations/{sample}-t{time}-{rep}_coverage.json"
         for sample, rep, time in replicates.index.to_list()
     ]
 
 def get_trim_params(wildcards):
+    """Get a string with Cutadapt parameters."""
     params=[
         "--quality-cutoff", config["trimming"]["min_qual"],
         "--minimum-length", config["trimming"]["min_len"]]
@@ -80,6 +87,7 @@ def get_trim_params(wildcards):
     return " ".join(params)
 
 def feature_counts_params(wildcards):
+    """Generate a string with featureCounts parameters."""
     params = config["feature_counts"]["additional"]
     if is_paired:
         params += " -p"

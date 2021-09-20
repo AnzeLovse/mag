@@ -31,6 +31,6 @@ rule samtools_index:
     output:
         "sorted_reads/{sample}-t{time}-{rep}.bam.bai"
     params:
-        threads=config["samtools"]["threads"] - 1
+        threads=config["samtools"]["threads"]
     shell:
         "samtools index -@ {params.threads} {input}"

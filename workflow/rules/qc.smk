@@ -37,10 +37,6 @@ rule multiqc:
     input:
         get_fastqc_outputs,
         get_qc_ouptuts,
-        # expand("qc/samtools_stats/{sample}-t{time}-{rep}.txt", sample=replicates["sample"], rep=replicates["replicate"], time=replicates["time"]),
-        # expand("logs/bowtie2/{sample}-t{time}-{rep}.log", sample=replicates["sample"], rep=replicates["replicate"], time=replicates["time"]),
-        # expand("qc/feature_counts/{sample}-t{time}-{rep}.summary", sample=replicates["sample"], rep=replicates["replicate"], time=replicates["time"]),
-        # expand("trimmed/{sample}-t{time}-{rep}.qc.txt", sample=replicates["sample"], rep=replicates["replicate"], time=replicates["time"])
     output:
         "qc/multiqc.html"
     params:
