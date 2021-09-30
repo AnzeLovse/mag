@@ -115,7 +115,7 @@ See the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/exe
 
 ### Step 5: Investigate results
 
-After successful execution, you can create a inspect an interactive HTML report made with MultiQC. It is located in `results_timecourse/qc/multiqc.html`
+After successful execution, you can inspect the interactive HTML report made with MultiQC. It is located in `results_timecourse/qc/multiqc.html`
 
 For more information about MultiQC please see the [official webpage](https://multiqc.info/) and tool documentation.
 
@@ -162,7 +162,7 @@ Whenever you change something, don't forget to commit the changes back to your G
 
 Whenever you want to synchronize your workflow copy with new developments from upstream, do the following.
 
-1. Once, register the upstream repository in your local copy: `git remote add -f upstream git@github.com:snakemake-workflows/mag.git` or `git remote add -f upstream https://github.com/snakemake-workflows/mag.git` if you do not have setup ssh keys.
+1. Once, register the upstream repository in your local copy: `git remote add -f upstream git@github.com:AnzeLovse/mag.git` or `git remote add -f upstream https://github.com/AnzeLovse/mag.git` if you do not have setup ssh keys.
 2. Update the upstream version: `git fetch upstream`.
 3. Create a diff with the current version: `git diff HEAD upstream/master workflow > upstream-changes.diff`.
 4. Investigate the changes: `vim upstream-changes.diff`.
